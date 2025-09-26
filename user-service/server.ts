@@ -8,7 +8,7 @@ import morgan from 'morgan'
 import connectDatabase from '@/database/connection'
 import config from '@/config'
 
-// import router from '@/routes'
+import router from '@/routes'
 
 const app = express()
 
@@ -29,7 +29,7 @@ const serverIP = ip.address()
 console.log(`\x1b[95mSERVER IP: ${serverIP}`)
 
 app.get('/', (req, res) => res.json({ status: 'UP', message: 'Server runs' }))
-// app.use('/api', router)
+app.use('/api', router)
 
 const server = http.createServer(app)
 
