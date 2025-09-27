@@ -37,5 +37,8 @@ async def add_checker(request: Request, call_next):
     logging.info(data)
     return await call_next(request)
 
+@app.get("/health")
+async def health_check():
+    return { "status": "healthy" }
 
-# app.include_router(prefix="/api", router=api_routes)
+app.include_router(prefix="/api", router=api_routes)
