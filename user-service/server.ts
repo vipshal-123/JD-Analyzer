@@ -5,6 +5,7 @@ import ip from 'ip'
 import frameGuard from 'frameguard'
 import cors from 'cors'
 import morgan from 'morgan'
+import cookieParser from 'cookie-parser';
 import connectDatabase from '@/database/connection'
 import config from '@/config'
 
@@ -23,6 +24,7 @@ app.use(
 app.use(json({ limit: '16kb' }))
 app.use(urlencoded({ extended: true }))
 app.use(frameGuard({ action: 'deny' }))
+app.use(cookieParser());
 app.use(morgan('dev'))
 
 const serverIP = ip.address()

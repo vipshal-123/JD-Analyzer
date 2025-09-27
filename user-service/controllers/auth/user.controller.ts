@@ -9,14 +9,7 @@ import ms from 'ms'
 import jwt from 'jsonwebtoken'
 import { Request, Response } from 'express'
 import { AuthTokenPayload } from '@/types/auth'
-
-interface CreatePasswordCookies {
-    create_password_token?: string
-}
-
-interface RefreshTokenCookies {
-    refreshToken?: string
-}
+import * as enums from '@/constants/enums'
 
 export const signupSendOtp = async (req: Request, res: Response) => {
     try {
@@ -31,13 +24,11 @@ export const signupSendOtp = async (req: Request, res: Response) => {
         }
 
         const userPayload = {
-            name: body.name,
+            fullName: body.name,
             email: body.email,
-            companyName: body.companyName,
-            phone: body.phone,
         }
 
-        let createUser: any = { _id: findUser?._id, email: body.email }
+        let createUser: any = { _id: findUser?._id, email: body.email, fullName: body?.name }
         console.log('createUser: ', createUser)
 
         if (!findUser) {
@@ -71,11 +62,12 @@ export const signupSendOtp = async (req: Request, res: Response) => {
             { _id: createUser._id, email: createUser.email },
             req,
             res,
-            'OTP_TEMPLATE',
+            'verification_mail',
             '',
             'activation_mail',
             'email',
             'email_otp_session',
+            { name: createUser.fullName },
             otpCount,
         )
 
@@ -94,6 +86,7 @@ export const signupSendOtp = async (req: Request, res: Response) => {
 export const verifySignupOtp = async (req: Request, res: Response) => {
     try {
         const { body, cookies } = req
+        console.log('cookies: ', cookies);
 
         if (isEmpty(body?.token)) {
             return res.status(400).json({ success: false, message: 'Invalid token' })
@@ -181,11 +174,12 @@ export const resendOtp = async (req: Request, res: Response) => {
             { _id: tokenId._id, email: tokenId.email },
             req,
             res,
-            'OTP_TEMPLATE',
+            'verification_mail',
             '',
             'activation_mail',
             'email',
             'email_otp_session',
+            { name: user.fullName },
             0,
         )
 
@@ -250,6 +244,7 @@ export const createPassword = async (req: Request, res: Response) => {
                 $set: {
                     password: hashPassword,
                     isEmailVerified: true,
+                    status: enums.STATUS.ACTIVE,
                 },
             },
         )
@@ -428,6 +423,7 @@ export const refreshToken = async (req: Request, res: Response) => {
 export const userInfo = async (req: Request, res: Response) => {
     try {
         const { user } = req
+        console.log('user: ', user);
 
         const findUser = await User.findById(user._id).select('-password -isEmailVerified -status').lean()
 

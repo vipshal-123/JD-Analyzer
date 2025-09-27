@@ -19,9 +19,11 @@ export const sendOtp = async (
     type: string,
     mode: string,
     session: string,
+    content: any,
     otpCount: number,
 ): Promise<{ status: boolean; message?: string; token?: string }> => {
     try {
+
         const otp = generateOTP()
         const otpExpiry = new Date(Date.now() + ms('10min'))
         const otpSecret = uuid()
@@ -32,7 +34,7 @@ export const sendOtp = async (
         const emailContext = {
             identifier,
             to: user.email,
-            content: { subject, otp },
+            content: { subject, otp, name: content?.name },
         }
         const emailSent = await sendEmailViaTemplate(emailContext)
         if (!emailSent) return { status: false, message: 'Something went wrong' }
@@ -90,6 +92,8 @@ export const verifyOtp = async (
     session: string,
 ): Promise<{ status: boolean; message?: string }> => {
     try {
+    console.log('cookies: ', cookies);
+
         if (isEmpty(cookies[session])) {
             return { status: false, message: 'Invalid cookie session' }
         }

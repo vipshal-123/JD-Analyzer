@@ -1,3 +1,4 @@
+import { userAuthenticate as userAuth } from '@/security/passport';
 import express from 'express'
 import * as controllers from '@/controllers'
 import * as validations from '@/validations'
@@ -11,6 +12,6 @@ router.route('/create-password').post(controllers.auth.user.createPassword)
 router.route('/signin').post(controllers.auth.user.signin)
 router.route('/refresh-token').post(controllers.auth.user.refreshToken)
 
-router.route('/user-info').get(controllers.auth.user.userInfo)
+router.route('/user-info').get(userAuth, controllers.auth.user.userInfo)
 
 export default router

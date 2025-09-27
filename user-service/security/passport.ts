@@ -12,8 +12,7 @@ export const userAuthenticate = async (req: Request, res: Response, next: NextFu
 
         const token = isRefreshing ? req.cookies.refreshToken : req?.headers?.authorization?.split(' ')[1]
         const decoded = jsonwebtoken.verify(token, config.AUTH_PUBLIC_KEY, { algorithms: ['RS256'] }) as AuthTokenPayload
-        // console.log('decoded: ', decoded);
-        const adminUser = await User.findById(decoded?._id).select('_id').lean()
+        const user = await User.findById(decoded?._id).select('_id status').lean()
 
         const tokenRecord = await Token.findOne({ [isRefreshing ? 'refreshToken' : 'accessToken']: token }).lean()
 
@@ -21,11 +20,11 @@ export const userAuthenticate = async (req: Request, res: Response, next: NextFu
             return res.status(401).json({ success: false, message: 'Unauthorized' })
         }
 
-        if (!adminUser) {
+        if (!user) {
             return res.status(401).json({ success: false, message: 'Unauthorized' })
         }
 
-        if (adminUser.status !== enums.STATUS.ACTIVE) {
+        if (user.status !== enums.STATUS.ACTIVE) {
             return res.status(401).json({ success: false, message: 'Unauthorized' })
         }
 

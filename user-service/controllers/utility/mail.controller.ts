@@ -69,10 +69,11 @@ export const sendEmailViaTemplate = async ({
             subject: template.subject,
             template: template.content,
         }
+                console.log('content: ', content);
 
         switch (identifier) {
             case enums.EMAIL_CATEGORIES.VERIFICATION_MAIL:
-                mailContent.template = mailContent.template.replace('##OTP##', content.otp || '')
+                mailContent.template = mailContent.template.replace('##OTP##', content.otp || '').replace('##USER_NAME##', content.name)
                 break
             default:
                 break
