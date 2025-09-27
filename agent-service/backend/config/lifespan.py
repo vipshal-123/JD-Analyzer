@@ -5,6 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from beanie import init_beanie
 
 from backend.config.main import MONGO_URI
+from backend.models.Analysis import Analysis
 import logging
 
 
@@ -14,6 +15,7 @@ async def lifespan(app: FastAPI):
     await init_beanie(
         database=app.db,
         document_models=[
+            Analysis
         ],
     )
     logging.info("Database initialized")

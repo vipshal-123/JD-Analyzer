@@ -17,7 +17,10 @@ def generate_recommendations(state: AgentState, gemini_client) -> AgentState:
     5. Missing sections to add
     
     Prioritize recommendations by potential impact on match score.
-    Return as a list of specific, actionable suggestions.
+    Return format:
+    ["Add PostgreSQL to skills", "Emphasize Node.js experience", "Include cloud certifications", "Quantify achievements", "Update job titles"]
+    
+    Keep each recommendation under 10 words.
     """
     
     recommendations = gemini_client.analyze_text(prompt, "")

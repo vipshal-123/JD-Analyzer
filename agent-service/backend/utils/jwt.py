@@ -1,22 +1,38 @@
-from jwt import decode, ExpiredSignatureError, InvalidTokenError
+from jose import jwt, JWTError
 from fastapi import HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-import os
 from dotenv import load_dotenv
+from backend.config import main
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.backends import default_backend
 
 security = HTTPBearer()
 load_dotenv("local.env")
 
-def verify_jwt_token(token: str, token_type: str = "refresh") -> dict:
+async def verify_jwt_token(token: str) -> dict:
+    print("token", token)
     try:
-        payload = decode(token, os.getenv("JWT_SECRET_KEY"), algorithms=["HS256"])
-        if payload.get("type") != token_type:
-            raise InvalidTokenError("Invalid token type.")
+        public_key = serialization.load_pem_public_key(
+            main.JWT_ACCESS_KEY_PUBLIC, backend=default_backend()
+        )
+
+        public_key_pem_decrypted = public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+
+        payload = jwt.decode(
+            token, public_key_pem_decrypted.decode("utf-8"), algorithms=["RS256"]
+        )
+
         return payload
-    except ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired.")
-    except InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token.")
+    except JWTError as e:
+        print(e)
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
 
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    return verify_jwt_token(credentials.credentials)
+    if credentials is None:
+        raise HTTPException(status_code=403, detail="Authorization token missing")
+    
+    return await verify_jwt_token(credentials.credentials)
