@@ -1,5 +1,5 @@
 import config from '@/config'
-import { Security, Token, User } from '@/models'
+import { EmailTemplates, Security, Token, User } from '@/models'
 import { sendOtp, verifyOtp } from '@/security/auth.security'
 import { decryptString, encryptString } from '@/security/crypto'
 import { comparePassword, generateJWTToken, generatePassword } from '@/security/security'
@@ -15,6 +15,12 @@ export const signupSendOtp = async (req: Request, res: Response) => {
     try {
         const { body } = req
         const otpCount = body.otpCount || 0
+
+        const findEmailTemplate = await EmailTemplates.findOne({ identifier: 'verification_mail' }).select('_id').lean()
+
+        if (isEmpty(findEmailTemplate)) {
+            return res.status(500).json({ success: false, message: 'Email Template not found.' })
+        }
 
         const findUser = await User.findOne({ email: body.email })
         console.log('findUser: ', findUser)
@@ -86,7 +92,7 @@ export const signupSendOtp = async (req: Request, res: Response) => {
 export const verifySignupOtp = async (req: Request, res: Response) => {
     try {
         const { body, cookies } = req
-        console.log('cookies: ', cookies);
+        console.log('cookies: ', cookies)
 
         if (isEmpty(body?.token)) {
             return res.status(400).json({ success: false, message: 'Invalid token' })
@@ -423,7 +429,7 @@ export const refreshToken = async (req: Request, res: Response) => {
 export const userInfo = async (req: Request, res: Response) => {
     try {
         const { user } = req
-        console.log('user: ', user);
+        console.log('user: ', user)
 
         const findUser = await User.findById(user._id).select('-password -isEmailVerified -status').lean()
 

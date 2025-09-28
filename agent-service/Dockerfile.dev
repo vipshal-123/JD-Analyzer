@@ -1,0 +1,26 @@
+FROM python:3.12.3-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libffi-dev \
+    libssl-dev \
+    python3-dev \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml poetry.lock README.md local.env /app/
+
+RUN pip install --no-cache-dir poetry
+
+RUN poetry install --no-root
+
+COPY . /app
+
+EXPOSE 5002
+
+ENV ENVIRONMENT=LOCAL
+
+CMD ["poetry", "run", "server"]

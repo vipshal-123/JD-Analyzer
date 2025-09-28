@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import {
     X,
     Download,
@@ -16,6 +16,8 @@ import {
     Briefcase,
 } from 'lucide-react'
 import type { Analysis } from './AnalysisCard'
+import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
 
 interface AnalysisModalProps {
     analysis: Analysis & {
@@ -58,6 +60,7 @@ interface AnalysisModalProps {
 
 const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose }) => {
     const [activeTab, setActiveTab] = useState<'overview' | 'skills' | 'experience' | 'recommendations'>('overview')
+    const contentRef = useRef<HTMLDivElement>(null)
 
     const tabs = [
         { id: 'overview', label: 'Overview' },
@@ -66,28 +69,37 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose }) => {
         { id: 'recommendations', label: 'Recommendations' },
     ] as const
 
-    const handleDownload = () => {
-        const content = {
-            analysis_id: analysis.analysis_id,
-            job_title: analysis.job_title,
-            company: analysis.company,
-            match_percentage: analysis.match_percentage,
-            created_at: analysis.created_at,
-            candidate_name: analysis.candidate_name,
-            skills_matched: analysis.match_analysis?.skill_match?.matched || [],
-            skills_missing: analysis.match_analysis?.skill_match?.missing || [],
-            recommendations: analysis.recommendations || [],
+    const handleDownloadPDF = async () => {
+        if (!contentRef.current) return
+
+        const element = contentRef.current
+
+        const canvas = await html2canvas(element, { scale: 2 })
+        const imgData = canvas.toDataURL('image/png')
+
+        const pdf = new jsPDF('p', 'mm', 'a4')
+
+        const pageWidth = pdf.internal.pageSize.getWidth()
+        const pageHeight = pdf.internal.pageSize.getHeight()
+
+        const imgProps = pdf.getImageProperties(imgData)
+        const imgWidth = pageWidth
+        const imgHeight = (imgProps.height * imgWidth) / imgProps.width
+
+        let heightLeft = imgHeight
+        let position = 0
+
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
+        heightLeft -= pageHeight
+
+        while (heightLeft > 0) {
+            position = heightLeft - imgHeight
+            pdf.addPage()
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
+            heightLeft -= pageHeight
         }
 
-        const dataStr = JSON.stringify(content, null, 2)
-        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr)
-
-        const exportFileDefaultName = `analysis_${analysis.job_title.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.json`
-
-        const linkElement = document.createElement('a')
-        linkElement.setAttribute('href', dataUri)
-        linkElement.setAttribute('download', exportFileDefaultName)
-        linkElement.click()
+        pdf.save(`analysis_${analysis.job_title.replace(/\s+/g, '_')}.pdf`)
     }
 
     const handleShare = async () => {
@@ -127,7 +139,6 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose }) => {
     return (
         <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50'>
             <div className='bg-white rounded-xl shadow-xl w-full max-w-6xl max-h-[90vh] overflow-hidden'>
-                {/* Header */}
                 <div className='flex items-center justify-between p-6 border-b border-gray-200'>
                     <div>
                         <h2 className='text-xl font-bold text-gray-900'>{analysis.job_title}</h2>
@@ -137,7 +148,7 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose }) => {
                     </div>
                     <div className='flex items-center space-x-2'>
                         <button
-                            onClick={handleDownload}
+                            onClick={handleDownloadPDF}
                             className='flex items-center space-x-2 px-3 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors'
                         >
                             <Download className='w-4 h-4' />
@@ -156,7 +167,6 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose }) => {
                     </div>
                 </div>
 
-                {/* Tabs */}
                 <div className='flex border-b border-gray-200'>
                     {tabs.map((tab) => (
                         <button
@@ -171,11 +181,9 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose }) => {
                     ))}
                 </div>
 
-                {/* Content */}
-                <div className='p-6 overflow-y-auto max-h-[calc(90vh-200px)]'>
+                <div ref={contentRef} className='p-6 overflow-y-auto max-h-[calc(90vh-200px)]'>
                     {activeTab === 'overview' && (
                         <div className='space-y-6'>
-                            {/* Match Score */}
                             <div className='text-center'>
                                 <div
                                     className={`inline-flex items-center justify-center w-24 h-24 rounded-full text-3xl font-bold ${getMatchScoreColor(
@@ -188,7 +196,6 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose }) => {
                                 <p className='text-gray-600'>How well this resume matches the job requirements</p>
                             </div>
 
-                            {/* Quick Stats Grid */}
                             <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
                                 <div className='bg-green-50 rounded-lg p-6 text-center'>
                                     <CheckCircle className='w-8 h-8 text-green-500 mx-auto mb-3' />
@@ -207,7 +214,6 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose }) => {
                                 </div>
                             </div>
 
-                            {/* Candidate Info */}
                             <div className='bg-gray-50 rounded-lg p-6'>
                                 <h4 className='text-lg font-semibold text-gray-900 mb-4 flex items-center'>
                                     <User className='w-5 h-5 mr-2' />
@@ -243,7 +249,6 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose }) => {
 
                     {activeTab === 'skills' && (
                         <div className='space-y-6'>
-                            {/* Matched Skills */}
                             <div>
                                 <h3 className='text-lg font-semibold text-gray-900 mb-4 flex items-center'>
                                     <CheckCircle className='w-5 h-5 text-green-500 mr-2' />
@@ -258,7 +263,6 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose }) => {
                                 </div>
                             </div>
 
-                            {/* Missing Skills */}
                             <div>
                                 <h3 className='text-lg font-semibold text-gray-900 mb-4 flex items-center'>
                                     <XCircle className='w-5 h-5 text-red-500 mr-2' />
@@ -273,7 +277,6 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose }) => {
                                 </div>
                             </div>
 
-                            {/* Candidate's Skills by Category */}
                             {analysis.parsed_resume?.skills && (
                                 <div className='space-y-4'>
                                     <h3 className='text-lg font-semibold text-gray-900'>Candidate's Skills Breakdown</h3>
@@ -302,7 +305,6 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose }) => {
 
                     {activeTab === 'experience' && (
                         <div className='space-y-6'>
-                            {/* Education */}
                             {analysis.parsed_resume?.education && (
                                 <div>
                                     <h3 className='text-lg font-semibold text-gray-900 mb-4 flex items-center'>
@@ -323,7 +325,6 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose }) => {
                                 </div>
                             )}
 
-                            {/* Work Experience */}
                             {analysis.parsed_resume?.work_experience && (
                                 <div>
                                     <h3 className='text-lg font-semibold text-gray-900 mb-4 flex items-center'>
@@ -349,7 +350,6 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose }) => {
                                 </div>
                             )}
 
-                            {/* Projects */}
                             {analysis.parsed_resume?.certifications_and_projects?.projects && (
                                 <div>
                                     <h3 className='text-lg font-semibold text-gray-900 mb-4 flex items-center'>

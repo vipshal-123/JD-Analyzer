@@ -1,9 +1,11 @@
 [tool.poetry]
 name = "backend"
 version = "0.1.0"
-description = "RAG-based Elevator JD Analyzer"
+description = "JD Analyzer"
 authors = ["Vipshal wg <vipshalgw@gmail.com>"]
 readme = "README.md"
+
+packages = [{ include = "backend" }]
 
 [tool.poetry.dependencies]
 python = ">=3.12,<3.14"
