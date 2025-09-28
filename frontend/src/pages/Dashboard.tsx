@@ -84,7 +84,7 @@ const Dashboard: React.FC = () => {
             <header className='bg-white shadow-sm border-b'>
                 <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
                     <div className='flex justify-between items-center h-16'>
-                        <div className='flex items-center space-x-4'>
+                        <div onClick={() => navigate('/upload')} className='flex items-center space-x-4 cursor-pointer'>
                             <div className='bg-blue-600 rounded-lg p-2'>
                                 <FileText className='w-6 h-6 text-white' />
                             </div>

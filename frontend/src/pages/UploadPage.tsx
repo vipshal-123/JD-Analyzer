@@ -4,7 +4,7 @@ import type { FormikHelpers } from 'formik'
 import { useNavigate } from 'react-router-dom'
 import { useDropzone } from 'react-dropzone'
 import type { FileWithPath } from 'react-dropzone'
-import { Upload, FileText, Briefcase, AlertCircle, CheckCircle, X, LogOut } from 'lucide-react'
+import { Upload, FileText, Briefcase, AlertCircle, CheckCircle, X, LogOut, LayoutDashboard } from 'lucide-react'
 import { uploadSchema } from '../utils/validationSchemas'
 import { analyseResume } from '@/services/v1/agent/agent.service'
 import { useDispatch } from 'react-redux'
@@ -99,7 +99,7 @@ const UploadPage: React.FC = () => {
             <header className='bg-white shadow-sm border-b'>
                 <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
                     <div className='flex justify-between items-center h-16'>
-                        <div className='flex items-center space-x-4'>
+                        <div  onClick={() => navigate('/upload')} className='flex items-center space-x-4 cursor-pointer'>
                             <div className='bg-blue-600 rounded-lg p-2'>
                                 <FileText className='w-6 h-6 text-white' />
                             </div>
@@ -112,6 +112,14 @@ const UploadPage: React.FC = () => {
                             >
                                 <FileText className='w-4 h-4' />
                                 <span>Past Analysis</span>
+                            </button>
+
+                            <button
+                                onClick={() => navigate('/dashboard')}
+                                className='flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-2 rounded-md transition-colors'
+                            >
+                                <LayoutDashboard className='w-4 h-4' />
+                                <span>Dashboard</span>
                             </button>
 
                             <button

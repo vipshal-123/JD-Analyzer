@@ -2,8 +2,10 @@ from google import genai
 from google.genai import types
 import os
 from dotenv import load_dotenv
+import logging
 
 load_dotenv("local.env")
+logger = logging.getLogger(__name__)
 
 class GeminiClient:
     def __init__(self):
@@ -25,6 +27,10 @@ class GeminiClient:
                 )
             )
             
+            if not response or not response.text:
+                raise Exception("Empty response from Gemini API")
+            
+            logger.info(f"Gemini response length: {len(response.text)}")
             result = response.text
             print(f"Gemini response length: {len(result)}")
             
@@ -32,4 +38,4 @@ class GeminiClient:
             
         except Exception as e:
             print(f"Gemini API error: {e}")
-            return f"Error calling Gemini API: {str(e)}"
+            raise Exception(f"GEMINI_API_ERROR: {e}")

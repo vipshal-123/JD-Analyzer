@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from typing import Optional
 from backend.agents.graph import JDResumeAnalyzer
-from backend.utils.reuseable_functions import extract_text_from_docx, extract_text_from_pdf, clean_and_parse
+from backend.utils.reuseable_functions import extract_text_from_docx, extract_text_from_pdf, safe_process_data
 from backend.models.Analysis import Analysis
 from beanie import PydanticObjectId
 import math
@@ -18,7 +18,7 @@ async def analyze_resume(current_user, resume: UploadFile = File(...), jd: str =
         elif resume.filename.endswith('.docx'):
             resume_text = extract_text_from_docx(file_content=file_content)
         else:
-            return JSONResponse({ "success": False, "message": "Invalid file format Accepts(PDF/DOCX)"}, status_code=400)
+            return JSONResponse({"success": False, "message": "Invalid file format. Accepts PDF/DOCX"}, status_code=400)
         
         initial_state = {
             "resume_text": resume_text,
@@ -31,39 +31,59 @@ async def analyze_resume(current_user, resume: UploadFile = File(...), jd: str =
             "messages": []
         }
         
-        analyzer = JDResumeAnalyzer()
-        result = analyzer.workflow.invoke(initial_state)
-    
+        try:
+            analyzer = JDResumeAnalyzer()
+            result = analyzer.workflow.invoke(initial_state)
+            
+            print(f"Workflow completed. Match score: {result.get('match_score', 'Unknown')}")
+            
+        except Exception as workflow_error:
+            error_str = str(workflow_error)
+            print(f"Workflow error: {error_str}")
+            import traceback
+            traceback.print_exc()
+                    
+            if "GEMINI_503_UNAVAILABLE" in error_str:
+                return JSONResponse({"success": False, "message": "AI service is temporarily unavailable. Please try again in a few minutes."}, status_code=503)
+            
+            elif "GEMINI_QUOTA_EXCEEDED" in error_str:
+                return JSONResponse({"success": False, "message": "AI service quota exceeded. Please try again later."}, status_code=429)
+            
+            elif "GEMINI_NETWORK_ERROR" in error_str:
+                return JSONResponse({"success": False, "message": "Network connectivity issue. Please check your connection and try again."}, status_code=502)   
+            else:
+                return JSONResponse({"success": False, "message": f"Analysis failed: {str(workflow_error)}"}, status_code=500)
+        
+        processed_resume = safe_process_data(result.get("parsed_resume", {}), "resume")
+        processed_job_analysis = safe_process_data(result.get("parsed_jd", {}), "job")
         
         formatted_data = {
-            "match_percentage": result["match_score"],
-            "match_analysis": result["match_analysis"],
-            "parsed_resume": clean_and_parse(result["parsed_resume"]["raw_analysis"]),
-            "job_analysis": clean_and_parse(result["parsed_jd"]),
-            "recommendations": result["recommendations"],
+            "match_percentage": int(result.get("match_score", 0)),
+            "match_analysis": result.get("match_analysis", {}),
+            "parsed_resume": processed_resume,
+            "job_analysis": processed_job_analysis,
+            "recommendations": result.get("recommendations", []),
         }
-        
-        if(result["match_score"] > 100):
-            return JSONResponse({ "success": True, "message": "Gemini api limit exeeded" }, status_code=500)
         
         analysis = Analysis(
             user_id=PydanticObjectId(current_user.get('_id')),
             company=company,
             job_title=job_title,
-            match_percentage=result["match_score"],
-            match_analysis=result["match_analysis"],
-            parsed_resume=clean_and_parse(result["parsed_resume"]["raw_analysis"]),
-            job_analysis=clean_and_parse(result["parsed_jd"]),
-            recommendations=result["recommendations"],
+            match_percentage=int(result.get("match_score", 0)),
+            match_analysis=result.get("match_analysis", {}),
+            parsed_resume=processed_resume,
+            job_analysis=processed_job_analysis,
+            recommendations=result.get("recommendations", []),
         )
         
         await analysis.save()
-        return JSONResponse({ "success": True, "data": jsonable_encoder(formatted_data)}, status_code=200)
+        return JSONResponse({"success": True, "data": jsonable_encoder(formatted_data)}, status_code=200)
+        
     except Exception as e:
-        print(e)
+        print(f"Main error: {e}")
         import traceback
         traceback.print_exc()
-        return JSONResponse({ "success": False, "message": "Something went wrong"}, status_code=500)
+        return JSONResponse({"success": False, "message": "Something went wrong"}, status_code=500)
     
 async def past_reports(current_user, page: int=1, limit: int=10):
     try:
