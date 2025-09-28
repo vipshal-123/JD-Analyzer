@@ -11,7 +11,7 @@ export default {
     AUTH_PUBLIC_KEY: fs.readFileSync(path.resolve(path.join(__dirname, '../private/auth_public_key.pem')), 'utf8'),
     AUTH_SIGNER_KEY: fs.readFileSync(path.resolve(path.join(__dirname, '../private/auth_private_signer.pem')), 'utf8'),
     REFRESH_TOKEN_EXPIRATION: ms("7d"),
-    ACCESS_TOKEN_EXPIRATION:  ms("15m"),
+    ACCESS_TOKEN_EXPIRATION:  ms("1d"),
 
     SMTP_HOST: process.env.SMTP_HOST as string,
     SMTP_PORT: process.env.SMTP_PORT as string,

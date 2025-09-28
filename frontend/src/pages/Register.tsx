@@ -1,23 +1,27 @@
 import { useFormik } from 'formik'
+import type { FormikHelpers } from 'formik'
 import { useNavigate, Link } from 'react-router-dom'
 import { User, Mail, AlertCircle } from 'lucide-react'
 import { registerSchema } from '../utils/validationSchemas'
 
-const Register = () => {
+interface RegisterFormValues {
+    name: string
+    email: string
+}
+
+const Register: React.FC = () => {
     const navigate = useNavigate()
 
-    const formik = useFormik({
+    const formik = useFormik<RegisterFormValues>({
         initialValues: {
             name: '',
             email: '',
         },
         validationSchema: registerSchema,
-        onSubmit: async (values, { setSubmitting, setFieldError }) => {
+        onSubmit: async (values: RegisterFormValues, { setSubmitting, setFieldError }: FormikHelpers<RegisterFormValues>) => {
             try {
-                // Simulate API call
                 await new Promise((resolve) => setTimeout(resolve, 1000))
 
-                // Store user data temporarily
                 localStorage.setItem('registerData', JSON.stringify(values))
 
                 navigate('/verify-otp')
