@@ -39,7 +39,7 @@ async def analyze_resume(current_user, resume: UploadFile = File(...), jd: str =
             "match_percentage": result["match_score"],
             "match_analysis": result["match_analysis"],
             "parsed_resume": clean_and_parse(result["parsed_resume"]["raw_analysis"]),
-            "job_analysis": clean_and_parse(result["parsed_jd"]["raw_analysis"]),
+            "job_analysis": clean_and_parse(result["parsed_jd"]),
             "recommendations": result["recommendations"],
         }
         
@@ -53,7 +53,7 @@ async def analyze_resume(current_user, resume: UploadFile = File(...), jd: str =
             match_percentage=result["match_score"],
             match_analysis=result["match_analysis"],
             parsed_resume=clean_and_parse(result["parsed_resume"]["raw_analysis"]),
-            job_analysis=clean_and_parse(result["parsed_jd"]["raw_analysis"]),
+            job_analysis=clean_and_parse(result["parsed_jd"]),
             recommendations=result["recommendations"],
         )
         
@@ -61,6 +61,8 @@ async def analyze_resume(current_user, resume: UploadFile = File(...), jd: str =
         return JSONResponse({ "success": True, "data": jsonable_encoder(formatted_data)}, status_code=200)
     except Exception as e:
         print(e)
+        import traceback
+        traceback.print_exc()
         return JSONResponse({ "success": False, "message": "Something went wrong"}, status_code=500)
     
 async def past_reports(current_user, page: int=1, limit: int=10):

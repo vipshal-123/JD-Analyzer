@@ -1,7 +1,7 @@
 from beanie import Document, PydanticObjectId
 from datetime import datetime
 from pydantic import Field
-from typing import List, Optional
+from typing import Dict, List, Any, Optional, Union
 
 
 class Analysis(Document):
@@ -9,10 +9,10 @@ class Analysis(Document):
     company: Optional[str] = ""
     job_title: str = ""
     match_percentage: int = 0
-    match_analysis: dict
-    parsed_resume: dict
-    job_analysis: dict
-    recommendations: List[str]
+    match_analysis: Dict[str, Any] = Field(default_factory=dict)
+    parsed_resume: Dict[str, Any] = Field(default_factory=dict) 
+    job_analysis: Dict[str, Any] = Field(default_factory=dict)
+    recommendations: List[str] = Field(default_factory=list)
 
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
