@@ -35,13 +35,18 @@ An intelligent resume screening system that analyzes candidate resumes against j
 [git clone https://github.com/vipshal-123/JD-Analyzer/tree/main/agent-service](https://github.com/vipshal-123/JD-Analyzer.git)
 
 2. **Create virtual environment**
+```bash
 source venv/bin/activate     # Linux
 venv\Scripts\activate        # Windows
+```
 
 3. **Install dependencies**
+```bash
 poetry install
+```
 
 4. **Environment Configuration**
+```env
 MONGO_URI="mongodb://localhost:27017/jd-analyzer"
 PORT=5002
 
@@ -49,11 +54,13 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 15
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 
-GEMINI_API_KEY=AIzaSyDZT0-h3ix-lE_tk3bHYo1TF0jAXqWqfmE
-
+GEMINI_API_KEY=
+```
 
 ## 🚀 Running the Application
 
 ### Development Mode
+```bash
 poetry run server
+```
 
