@@ -1,4 +1,4 @@
-# 🤖 AI-Powered Resume Analyzer - Auth Service
+# 🤖 AI-Powered Resume Analyzer - User Service
 
 A robust, scalable authentication microservice built with Node.js, TypeScript, and Express.js. This service handles user registration, authentication, session management, and real-time communication features.
 
