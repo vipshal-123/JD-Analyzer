@@ -1,24 +1,28 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Lightbulb, TrendingUp, Star, CheckCircle, Copy, Check } from 'lucide-react'
 
-const Recommendations = ({ data }) => {
-    const [copiedIndex, setCopiedIndex] = useState(null)
+interface RecommendationsProps {
+    data: string[]
+}
 
-    const copyToClipboard = (text, index) => {
+const Recommendations: React.FC<RecommendationsProps> = ({ data }) => {
+    const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
+
+    const copyToClipboard = (text: string, index: number) => {
         navigator.clipboard.writeText(text).then(() => {
             setCopiedIndex(index)
             setTimeout(() => setCopiedIndex(null), 2000)
         })
     }
 
-    const getPriorityColor = (text) => {
+    const getPriorityColor = (text: string) => {
         if (text.includes('High Impact')) return 'border-red-200 bg-red-50'
         if (text.includes('Medium Impact')) return 'border-yellow-200 bg-yellow-50'
         if (text.includes('Low Impact')) return 'border-green-200 bg-green-50'
         return 'border-blue-200 bg-blue-50'
     }
 
-    const getPriorityIcon = (text) => {
+    const getPriorityIcon = (text: string) => {
         if (text.includes('High Impact')) return <Star className='w-5 h-5 text-red-500' />
         if (text.includes('Medium Impact')) return <TrendingUp className='w-5 h-5 text-yellow-500' />
         if (text.includes('Low Impact')) return <CheckCircle className='w-5 h-5 text-green-500' />
@@ -59,7 +63,6 @@ const Recommendations = ({ data }) => {
                 </div>
             </div>
 
-            {/* Action Items Summary */}
             <div className='bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-6'>
                 <h3 className='text-lg font-semibold text-gray-900 mb-4'>Quick Action Items</h3>
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>

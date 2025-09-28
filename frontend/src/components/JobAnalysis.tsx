@@ -1,7 +1,26 @@
+import React from 'react'
 import { Briefcase, Target, Star, Users, MapPin } from 'lucide-react'
 
-const JobAnalysis = ({ data }) => {
-    const SkillList = ({ skills, type }) => (
+interface JobRequirements {
+    required_skills: string[]
+    nice_to_have_skills: string[]
+    educational_requirements?: string
+    key_responsibilities: string[]
+    industry_specific_keywords: string[]
+    soft_skills: string[]
+}
+
+export interface JobData {
+    job_title: string
+    requirements?: JobRequirements
+}
+
+interface JobAnalysisProps {
+    data: JobData
+}
+
+const JobAnalysis: React.FC<JobAnalysisProps> = ({ data }) => {
+    const SkillList: React.FC<{ skills?: string[]; type: 'must' | 'nice' }> = ({ skills = [], type }) => (
         <div className='flex flex-wrap gap-2'>
             {skills.map((skill, index) => (
                 <span
@@ -18,7 +37,6 @@ const JobAnalysis = ({ data }) => {
 
     return (
         <div className='space-y-6'>
-            {/* Job Overview */}
             <div className='bg-white rounded-lg shadow p-6'>
                 <div className='flex items-center space-x-2 mb-6'>
                     <Briefcase className='w-6 h-6 text-blue-500' />
@@ -37,7 +55,7 @@ const JobAnalysis = ({ data }) => {
                             <MapPin className='w-5 h-5 text-gray-500' />
                             <div>
                                 <p className='text-sm text-gray-500'>Experience Level</p>
-                                <p className='font-semibold text-gray-900'>{data.experience_level_required}</p>
+                                <p className='font-semibold text-gray-900'>{data.requirements?.educational_requirements}</p>
                             </div>
                         </div>
                     </div>
@@ -46,36 +64,33 @@ const JobAnalysis = ({ data }) => {
                             <Users className='w-5 h-5 text-gray-500' />
                             <div>
                                 <p className='text-sm text-gray-500'>Education Requirements</p>
-                                <p className='font-semibold text-gray-900'>{data.educational_requirements}</p>
+                                <p className='font-semibold text-gray-900'>{data.requirements?.educational_requirements}</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Required Skills */}
             <div className='bg-white rounded-lg shadow p-6'>
                 <h3 className='text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2'>
                     <Star className='w-5 h-5 text-red-500' />
                     <span>Must-Have Skills</span>
                 </h3>
-                <SkillList skills={data.required_skills.must_have} type='must' />
+                <SkillList skills={data.requirements?.required_skills} type='must' />
             </div>
 
-            {/* Nice to Have Skills */}
             <div className='bg-white rounded-lg shadow p-6'>
                 <h3 className='text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2'>
                     <Star className='w-5 h-5 text-blue-500' />
                     <span>Nice-to-Have Skills</span>
                 </h3>
-                <SkillList skills={data.required_skills.nice_to_have} type='nice' />
+                <SkillList skills={data.requirements?.nice_to_have_skills} type='nice' />
             </div>
 
-            {/* Key Responsibilities */}
             <div className='bg-white rounded-lg shadow p-6'>
                 <h3 className='text-lg font-semibold text-gray-900 mb-4'>Key Responsibilities</h3>
                 <ul className='space-y-3'>
-                    {data.key_responsibilities.map((responsibility, index) => (
+                    {data.requirements?.key_responsibilities.map((responsibility, index) => (
                         <li key={index} className='flex items-start space-x-3'>
                             <div className='w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0'></div>
                             <p className='text-gray-700'>{responsibility}</p>
@@ -84,11 +99,10 @@ const JobAnalysis = ({ data }) => {
                 </ul>
             </div>
 
-            {/* Industry Keywords */}
             <div className='bg-white rounded-lg shadow p-6'>
                 <h3 className='text-lg font-semibold text-gray-900 mb-4'>Industry Keywords</h3>
                 <div className='flex flex-wrap gap-2'>
-                    {data.industry_specific_keywords.map((keyword, index) => (
+                    {data.requirements?.industry_specific_keywords.map((keyword, index) => (
                         <span key={index} className='px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm'>
                             {keyword}
                         </span>
@@ -96,11 +110,10 @@ const JobAnalysis = ({ data }) => {
                 </div>
             </div>
 
-            {/* Soft Skills */}
             <div className='bg-white rounded-lg shadow p-6'>
                 <h3 className='text-lg font-semibold text-gray-900 mb-4'>Desired Soft Skills</h3>
                 <div className='flex flex-wrap gap-2'>
-                    {data.soft_skills_mentioned.map((skill, index) => (
+                    {data.requirements?.soft_skills.map((skill, index) => (
                         <span key={index} className='px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm'>
                             {skill}
                         </span>

@@ -7,11 +7,13 @@ interface AuthState {
     loading: boolean
     userId: string
     email: string
+    name: string
 }
 
 interface UserResponse {
     id: string
     email: string
+    fullName: string
 }
 
 interface FetchUserDataResponse extends Partial<UserResponse> {
@@ -23,6 +25,7 @@ const initialState: AuthState = {
     loading: true,
     userId: '',
     email: '',
+    name: '',
 }
 
 export const fetchUserData = createAsyncThunk<FetchUserDataResponse>('auth/fetchUserData', async () => {
@@ -31,11 +34,11 @@ export const fetchUserData = createAsyncThunk<FetchUserDataResponse>('auth/fetch
         if (!isEmpty(response.data)) {
             return { isAuth: true, ...response.data }
         } else {
-            return { isAuth: false, id: '', email: '' }
+            return { isAuth: false, id: '', email: '', name: '' }
         }
     } catch (error) {
         console.error('error: ', error)
-        return { isAuth: false, id: '', email: '' }
+        return { isAuth: false, id: '', email: '', name: '' }
     }
 })
 
@@ -43,15 +46,17 @@ const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        setupAuth: (state, action: PayloadAction<{ isAuth: boolean; userId: string; email: string }>) => {
+        setupAuth: (state, action: PayloadAction<{ isAuth: boolean; userId: string; email: string; fullName: string }>) => {
             state.isAuth = action.payload.isAuth
             state.userId = action.payload.userId
             state.email = action.payload.email
+            state.name = action.payload.fullName
         },
         revokeAuth: (state) => {
             state.isAuth = false
             state.userId = ''
             state.email = ''
+            state.name = ''
         },
     },
     extraReducers: (builder) => {
@@ -64,12 +69,14 @@ const authSlice = createSlice({
                 state.isAuth = !!action.payload?.isAuth
                 state.userId = action.payload?.id ?? ''
                 state.email = action.payload?.email ?? ''
+                state.name = action.payload?.fullName ?? ''
             })
             .addCase(fetchUserData.rejected, (state) => {
                 state.loading = false
                 state.isAuth = false
                 state.userId = ''
                 state.email = ''
+                state.name = ''
             })
     },
 })

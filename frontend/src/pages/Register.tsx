@@ -3,6 +3,10 @@ import type { FormikHelpers } from 'formik'
 import { useNavigate, Link } from 'react-router-dom'
 import { User, Mail, AlertCircle } from 'lucide-react'
 import { registerSchema } from '../utils/validationSchemas'
+import { signupSendOtp } from '@/services/auth/user/user.service'
+import { useDispatch } from 'react-redux'
+import { openToast } from '@/redux/slice/toastSlice'
+import { setLocal } from '@/utils/storage'
 
 interface RegisterFormValues {
     name: string
@@ -11,6 +15,26 @@ interface RegisterFormValues {
 
 const Register: React.FC = () => {
     const navigate = useNavigate()
+    const dispatch = useDispatch()
+
+    const handleSubmit = async (values: RegisterFormValues, { setSubmitting }: FormikHelpers<RegisterFormValues>) => {
+        try {
+            const response = await signupSendOtp(values)
+
+            if (response.success) {
+                navigate('/verify-otp')
+                setLocal('token', response?.token)
+                dispatch(openToast({ message: response.message, type: 'success' }))
+            } else {
+                dispatch(openToast({ message: response.message, type: 'error' }))
+            }
+        } catch (error) {
+            console.error('error: ', error)
+            dispatch(openToast({ message: 'Something went wrong', type: 'error' }))
+        } finally {
+            setSubmitting(false)
+        }
+    }
 
     const formik = useFormik<RegisterFormValues>({
         initialValues: {
@@ -18,20 +42,7 @@ const Register: React.FC = () => {
             email: '',
         },
         validationSchema: registerSchema,
-        onSubmit: async (values: RegisterFormValues, { setSubmitting, setFieldError }: FormikHelpers<RegisterFormValues>) => {
-            try {
-                await new Promise((resolve) => setTimeout(resolve, 1000))
-
-                localStorage.setItem('registerData', JSON.stringify(values))
-
-                navigate('/verify-otp')
-            } catch (error) {
-                console.error('error: ', error)
-                setFieldError('email', 'Email already exists')
-            } finally {
-                setSubmitting(false)
-            }
-        },
+        onSubmit: handleSubmit,
     })
 
     return (

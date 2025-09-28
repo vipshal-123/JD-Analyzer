@@ -1,36 +1,53 @@
-import  { useState } from 'react'
+import { useState } from 'react'
 import { useFormik } from 'formik'
+import type { FormikHelpers } from 'formik'
 import { useNavigate, Link } from 'react-router-dom'
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { loginSchema } from '../utils/validationSchemas'
+import { signin } from '@/services/auth/user/user.service'
+import { useDispatch } from 'react-redux'
+import { openToast } from '@/redux/slice/toastSlice'
+import { setLocal } from '@/utils/storage'
+import { fetchUserData } from '@/redux/slice/authSlice'
+import type { AppDispatch } from '@/redux/store'
 
-const Login = () => {
+interface LoginFormValues {
+    email: string
+    password: string
+}
+
+const Login: React.FC = () => {
     const [showPassword, setShowPassword] = useState(false)
     const navigate = useNavigate()
+    const dispatch = useDispatch<AppDispatch>()
 
-    const formik = useFormik({
+    const handleSubmit = async (values: LoginFormValues, { setSubmitting }: FormikHelpers<LoginFormValues>) => {
+        try {
+            const response = await signin(values)
+
+            if (response.success) {
+                navigate('/upload')
+                dispatch(fetchUserData())
+                setLocal('access_token', response.accessToken)
+                dispatch(openToast({ message: response.message, type: 'success' }))
+            } else {
+                dispatch(openToast({ message: response.message, type: 'error' }))
+            }
+        } catch (error) {
+            console.error('error: ', error)
+            dispatch(openToast({ message: 'Something went wrong', type: 'error' }))
+        } finally {
+            setSubmitting(false)
+        }
+    }
+
+    const formik = useFormik<LoginFormValues>({
         initialValues: {
             email: '',
             password: '',
         },
         validationSchema: loginSchema,
-        onSubmit: async (values, { setSubmitting, setFieldError }) => {
-            try {
-                // Simulate API call
-                await new Promise((resolve) => setTimeout(resolve, 1000))
-
-                // Mock authentication
-                localStorage.setItem('isAuthenticated', 'true')
-                localStorage.setItem('userEmail', values.email)
-
-                navigate('/upload')
-            } catch (error) {
-                console.error('error: ', error)
-                setFieldError('email', 'Invalid credentials')
-            } finally {
-                setSubmitting(false)
-            }
-        },
+        onSubmit: handleSubmit,
     })
 
     return (

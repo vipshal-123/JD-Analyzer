@@ -1,33 +1,52 @@
 import { useState } from 'react'
 import { useFormik } from 'formik'
+import type { FormikHelpers } from 'formik'
 import { useNavigate } from 'react-router-dom'
 import { Lock, Eye, EyeOff, Check, X, AlertCircle } from 'lucide-react'
 import { createPasswordSchema } from '../utils/validationSchemas'
+import { createPassword } from '@/services/auth/user/user.service'
+import { useDispatch } from 'react-redux'
+import { openToast } from '@/redux/slice/toastSlice'
+import { removeLocal, setLocal } from '@/utils/storage'
 
-const CreatePassword = () => {
+interface CreatePasswordFormValues {
+    password: string
+    confirmPassword: string
+}
+
+const CreatePassword: React.FC = () => {
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const navigate = useNavigate()
+    const dispatch = useDispatch()
 
-    const formik = useFormik({
+    const handleSumbit = async (values: CreatePasswordFormValues, { setSubmitting }: FormikHelpers<CreatePasswordFormValues>) => {
+        try {
+            const response = await createPassword({ password: values.password })
+
+            if (response.success) {
+                navigate('/upload')
+                removeLocal('token')
+                setLocal('access_token', response.accessToken)
+                dispatch(openToast({ message: response.message, type: 'success' }))
+            } else {
+                dispatch(openToast({ message: response.message, type: 'error' }))
+            }
+        } catch (error) {
+            console.error('Password creation failed:', error)
+            dispatch(openToast({ message: 'Something went wrong', type: 'error' }))
+        } finally {
+            setSubmitting(false)
+        }
+    }
+
+    const formik = useFormik<CreatePasswordFormValues>({
         initialValues: {
             password: '',
             confirmPassword: '',
         },
         validationSchema: createPasswordSchema,
-        onSubmit: async (values, { setSubmitting }) => {
-            try {
-                // Simulate API call
-                await new Promise((resolve) => setTimeout(resolve, 1000))
-
-                localStorage.setItem('isAuthenticated', 'true')
-                navigate('/upload')
-            } catch (error) {
-                console.error('Password creation failed:', error)
-            } finally {
-                setSubmitting(false)
-            }
-        },
+        onSubmit: handleSumbit,
     })
 
     const passwordRequirements = [

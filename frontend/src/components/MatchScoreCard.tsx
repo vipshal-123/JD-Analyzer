@@ -1,6 +1,28 @@
+import React from 'react'
 import { TrendingUp, Target, CheckCircle, XCircle } from 'lucide-react'
 
-const MatchScoreCard = ({ data }) => {
+type ExperienceLevel = 'match' | 'partial' | 'mismatch'
+
+interface SkillMatch {
+    matched: string[]
+    missing: string[]
+}
+
+interface MatchAnalysis {
+    skill_match: SkillMatch
+    experience_level: ExperienceLevel
+}
+
+export interface MatchScoreData {
+    match_percentage: number
+    match_analysis: MatchAnalysis
+}
+
+interface MatchScoreCardProps {
+    data: MatchScoreData
+}
+
+const MatchScoreCard: React.FC<MatchScoreCardProps> = ({ data }) => {
     const { match_percentage, match_analysis } = data
 
     const getScoreColor = (score: number) => {

@@ -1,7 +1,72 @@
+import React from 'react'
 import { User, Mail, Phone, LinkedinIcon, Code, GraduationCap, Briefcase, Award } from 'lucide-react'
 
-const ResumeAnalysis = ({ data }) => {
-    const SkillSection = ({ title, skills, icon: Icon, color }) => (
+interface ContactInfo {
+    email: string
+    phone: string
+    linkedin: string
+}
+
+interface PersonalDetails {
+    name: string
+    contact_info: ContactInfo
+}
+
+interface Skills {
+    languages: string[]
+    frontend: string[]
+    backend: string[]
+    ai_ml: string[]
+    databases: string[]
+    tools_devops: string[]
+}
+
+interface Education {
+    degree: string
+    major: string
+    institution: string
+    years: string
+    cgpa: string
+}
+
+interface WorkExperience {
+    role: string
+    company: string
+    duration: string
+    achievements: string[]
+}
+
+interface Project {
+    name: string
+    duration: string
+    description: string
+    technologies: string[]
+    achievements?: string[]
+}
+
+interface CertificationsAndProjects {
+    projects: Project[]
+}
+
+interface ResumeData {
+    personal_details: PersonalDetails
+    skills: Skills
+    education: Education[]
+    work_experience: WorkExperience[]
+    certifications_and_projects: CertificationsAndProjects
+}
+
+interface ResumeAnalysisProps {
+    data: ResumeData
+}
+
+const ResumeAnalysis: React.FC<ResumeAnalysisProps> = ({ data }) => {
+    const SkillSection: React.FC<{
+        title: string
+        skills: string[]
+        icon: React.ElementType
+        color: string
+    }> = ({ title, skills, icon: Icon, color }) => (
         <div className='bg-white rounded-lg shadow p-6'>
             <div className='flex items-center space-x-2 mb-4'>
                 <Icon className={`w-5 h-5 ${color}`} />
@@ -19,7 +84,6 @@ const ResumeAnalysis = ({ data }) => {
 
     return (
         <div className='space-y-6'>
-            {/* Personal Details */}
             <div className='bg-white rounded-lg shadow p-6'>
                 <h2 className='text-2xl font-bold text-gray-900 mb-6'>Personal Information</h2>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -54,7 +118,6 @@ const ResumeAnalysis = ({ data }) => {
                 </div>
             </div>
 
-            {/* Skills Section */}
             <div>
                 <h2 className='text-2xl font-bold text-gray-900 mb-6'>Skills Overview</h2>
                 <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
@@ -67,7 +130,6 @@ const ResumeAnalysis = ({ data }) => {
                 </div>
             </div>
 
-            {/* Education */}
             <div className='bg-white rounded-lg shadow p-6'>
                 <div className='flex items-center space-x-2 mb-6'>
                     <GraduationCap className='w-6 h-6 text-blue-500' />
@@ -86,7 +148,6 @@ const ResumeAnalysis = ({ data }) => {
                 ))}
             </div>
 
-            {/* Work Experience */}
             <div className='bg-white rounded-lg shadow p-6'>
                 <div className='flex items-center space-x-2 mb-6'>
                     <Briefcase className='w-6 h-6 text-green-500' />
@@ -114,7 +175,6 @@ const ResumeAnalysis = ({ data }) => {
                 </div>
             </div>
 
-            {/* Projects */}
             <div className='bg-white rounded-lg shadow p-6'>
                 <div className='flex items-center space-x-2 mb-6'>
                     <Award className='w-6 h-6 text-purple-500' />

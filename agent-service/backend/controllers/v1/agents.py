@@ -41,7 +41,6 @@ async def analyze_resume(current_user, resume: UploadFile = File(...), jd: str =
             "parsed_resume": clean_and_parse(result["parsed_resume"]["raw_analysis"]),
             "job_analysis": clean_and_parse(result["parsed_jd"]["raw_analysis"]),
             "recommendations": result["recommendations"],
-            "processing_log": result["messages"]
         }
         
         if(result["match_score"] > 100):
@@ -91,6 +90,19 @@ async def past_reports(current_user, page: int=1, limit: int=10):
             return JSONResponse({ "success": True, "data": [] }, status_code=200)
         
         return JSONResponse({ "success": True, "data": jsonable_encoder(find_data), "paginate": jsonable_encoder(pagination) }, status_code=200)
+    except Exception as e:
+        print(e)
+        return JSONResponse({ "success": False, "message": "Something went wrong" }, status_code=500)
+    
+async def delete_reports(current_user, id):
+    try:
+        delete_data = await Analysis.find_one({ "_id": PydanticObjectId(id) }).delete()
+        
+        if delete_data.deleted_count == 0:
+            print(delete_data)
+            return JSONResponse({ "success": False, "message": "Something went wrong" }, status_code=500)
+        
+        return JSONResponse({ "success": True, "message": "Report deleted successfully" })
     except Exception as e:
         print(e)
         return JSONResponse({ "success": False, "message": "Something went wrong" }, status_code=500)

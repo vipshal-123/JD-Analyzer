@@ -1,32 +1,54 @@
 import { useState, useRef } from 'react'
+import type { ChangeEvent, KeyboardEvent } from 'react'
 import { useFormik } from 'formik'
+import type { FormikHelpers } from 'formik'
 import { useNavigate } from 'react-router-dom'
 import { Shield, AlertCircle } from 'lucide-react'
 import { otpSchema } from '../utils/validationSchemas'
+import { signupVerifyOtp } from '@/services/auth/user/user.service'
+import { getLocal } from '@/utils/storage'
+import { useDispatch } from 'react-redux'
+import { openToast } from '@/redux/slice/toastSlice'
 
-const OTPVerification = () => {
-    const [otpValues, setOtpValues] = useState(['', '', '', '', '', ''])
-    const inputRefs = useRef([])
+interface OTPFormValues {
+    otp: string
+}
+
+const OTPVerification: React.FC = () => {
+    const [otpValues, setOtpValues] = useState<string[]>(['', '', '', '', '', ''])
+    const inputRefs = useRef<Array<HTMLInputElement | null>>([])
     const navigate = useNavigate()
+    const dispatch = useDispatch()
 
-    const formik = useFormik({
-        initialValues: {
-            otp: '',
-        },
-        validationSchema: otpSchema,
-        onSubmit: async (values, { setSubmitting, setFieldError }) => {
-            try {
-                // Simulate API call
-                await new Promise((resolve) => setTimeout(resolve, 1000))
+    const handleSubmit = async (values: OTPFormValues, { setSubmitting }: FormikHelpers<OTPFormValues>) => {
+        try {
+            const localToken = getLocal('token')
 
-                navigate('/create-password')
-            } catch (error) {
-                console.error('error: ', error)
-                setFieldError('otp', 'Invalid OTP. Please try again.')
-            } finally {
-                setSubmitting(false)
+            const payload = {
+                otp: values.otp,
+                token: localToken,
             }
-        },
+
+            const response = await signupVerifyOtp(payload)
+
+            if (response.success) {
+                navigate('/create-password')
+                dispatch(openToast({ message: response.message, type: 'success' }))
+            } else {
+                dispatch(openToast({ message: response.message, type: 'error' }))
+            }
+        } catch (error) {
+            console.error('error: ', error)
+            dispatch(openToast({ message: 'Something went wrong', type: 'error' }))
+        } finally {
+            setSubmitting(false)
+        }
+    }
+
+    const formik = useFormik<OTPFormValues>({
+        initialValues: { otp: '' },
+        validationSchema: otpSchema,
+        onSubmit: handleSubmit,
     })
 
     const handleOtpChange = (index: number, value: string) => {
@@ -38,14 +60,13 @@ const OTPVerification = () => {
             const otpString = newOtpValues.join('')
             formik.setFieldValue('otp', otpString)
 
-            // Auto-focus next input
             if (value !== '' && index < 5) {
                 inputRefs.current[index + 1]?.focus()
             }
         }
     }
 
-    const handleKeyDown = (index, e) => {
+    const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Backspace' && !otpValues[index] && index > 0) {
             inputRefs.current[index - 1]?.focus()
         }
@@ -57,7 +78,7 @@ const OTPVerification = () => {
             await new Promise((resolve) => setTimeout(resolve, 500))
             alert('OTP resent successfully!')
         } catch (error) {
-            console.error('error: ', error);
+            console.error('error: ', error)
             alert('Failed to resend OTP. Please try again.')
         }
     }
@@ -79,11 +100,13 @@ const OTPVerification = () => {
                             {otpValues.map((digit, index) => (
                                 <input
                                     key={index}
-                                    ref={(el) => (inputRefs.current[index] = el)}
+                                    ref={(el) => {
+                                        inputRefs.current[index] = el
+                                    }}
                                     type='text'
                                     value={digit}
-                                    onChange={(e) => handleOtpChange(index, e.target.value)}
-                                    onKeyDown={(e) => handleKeyDown(index, e)}
+                                    onChange={(e: ChangeEvent<HTMLInputElement>) => handleOtpChange(index, e.target.value)}
+                                    onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => handleKeyDown(index, e)}
                                     className={`w-12 h-12 text-center text-xl font-semibold border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all ${
                                         formik.touched.otp && formik.errors.otp ? 'border-red-300 bg-red-50' : 'border-gray-300'
                                     }`}

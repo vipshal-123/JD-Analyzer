@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request , Depends, Form, Query
+from fastapi import APIRouter, Request , Depends, Form, Query, params
 from fastapi import UploadFile, File
 from backend.controllers.v1 import agents
 from backend.utils.jwt import get_current_user
@@ -17,3 +17,7 @@ async def past_report_wrapper(
     limit: int = Query(10, ge=1, le=100, description="Number of items per page (max 100)"),
 ):
     return await agents.past_reports(current_user=current_user, page=page, limit=limit)
+
+@router.delete('/report/{id}')
+async def delete_record_wrapper(id: str, current_user: dict = Depends(get_current_user)):
+    return await agents.delete_reports(current_user=current_user, id=id)
