@@ -1,75 +1,50 @@
-# React + TypeScript + Vite
+# 🎨 AI-Powered Resume Analyzer - React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, responsive React application for intelligent resume screening and analysis, featuring a clean UI built with TypeScript and Tailwind CSS.
 
-Currently, two official plugins are available:
+![React](https://img.shields.io/badge/react-v18.2.0-blue.svg)
+![TypeScript](https://img.shields.io/badge/typescript-v5.0.0-blue.svg)
+![Tailwind](https://img.shields.io/badge/tailwindcss-v3.3.0-38B2AC.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
 
-## React Compiler
+- **Modern Authentication Flow**: Login, registration, OTP verification, password creation, upload page, dashboard, past analyses
+- **Drag & Drop Upload**: Intuitive file upload with PDF/DOCX support
+- **Interactive Dashboard**: Comprehensive match scoring with detailed breakdowns
+- **Past Analyses**: Searchable history with pagination and filtering
+- **Form Validation**: Robust validation using Formik and Yup
+- **PDF Export**: Download analysis reports as professional PDFs
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## 🛠️ Tech Stack
 
-Note: This will impact Vite dev & build performances.
+- **Framework**: React 19.1.1 with TypeScript
+- **Styling**: Tailwind CSS 3.4.17
+- **Routing**: React Router DOM 7.x
+- **Form Management**: Formik with Yup validation
+- **HTTP Client**: Fetch API with error handling
+- **File Upload**: React Dropzone
+- **PDF Generation**: jsPDF with html2canvas
+- **Icons**: Lucide React
+- **Build Tool**: Vite
+- **Package Manager**: npm
 
-## Expanding the ESLint configuration
+## 📋 Prerequisites
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js 19.0 or higher
+- npm
+- Git
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🔧 Installation
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+1. **Clone the repository**
+[git clone https://github.com/vipshal-123/JD-Analyzer/tree/main/agent-service](https://github.com/vipshal-123/JD-Analyzer.git)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+2. **Install dependencies**
+```bash
+npm install
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+3. **Start development server**
+```bash
+npm run dev
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```

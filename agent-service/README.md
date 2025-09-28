@@ -15,7 +15,6 @@ An intelligent resume screening system that analyzes candidate resumes against j
 - **Smart Recommendations**: Generate prioritized improvement suggestions
 - **Multi-format Support**: Handle PDF and DOCX resume uploads
 - **Real-time Processing**: LangGraph workflow for efficient AI agent orchestration
-- **Secure Authentication**: JWT-based auth with OTP verification
 - **Scalable Storage**: MongoDB with Beanie ODM for document management
 - **Comprehensive API**: RESTful endpoints
 
@@ -45,13 +44,10 @@ venv\Scripts\activate        # Windows
 poetry install
 ```
 
-4. **Environment Configuration**
+4. **Environment Configuration (local.env)**
 ```env
 MONGO_URI="mongodb://localhost:27017/jd-analyzer"
 PORT=5002
-
-ACCESS_TOKEN_EXPIRE_MINUTES = 15
-REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 
 GEMINI_API_KEY=
