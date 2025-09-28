@@ -1,4 +1,4 @@
-# 🤖 AI-Powered Resume Analyzer - Backend
+# 🤖 AI-Powered Resume Analyzer - Agent Service
 
 An intelligent resume screening system that analyzes candidate resumes against job descriptions using Google's Gemini AI, built with FastAPI.
 
@@ -32,6 +32,10 @@ An intelligent resume screening system that analyzes candidate resumes against j
 
 1. **Clone the repository**
 [git clone https://github.com/vipshal-123/JD-Analyzer/tree/main/agent-service](https://github.com/vipshal-123/JD-Analyzer.git)
+
+```bash
+cd agent-service
+```
 
 2. **Create virtual environment**
 ```bash

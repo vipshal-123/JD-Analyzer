@@ -40,11 +40,17 @@ A modern, responsive React application for intelligent resume screening and anal
 1. **Clone the repository**
 [git clone https://github.com/vipshal-123/JD-Analyzer/tree/main/agent-service](https://github.com/vipshal-123/JD-Analyzer.git)
 
+```bash
+cd frontend
+```
+
 2. **Install dependencies**
 ```bash
 npm install
+```
 
 3. **Start development server**
 ```bash
 npm run dev
+```
 
