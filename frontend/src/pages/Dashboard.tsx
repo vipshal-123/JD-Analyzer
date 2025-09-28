@@ -5,8 +5,10 @@ import MatchScoreCard from '../components/MatchScoreCard'
 import ResumeAnalysis from '../components/ResumeAnalysis'
 import JobAnalysis from '../components/JobAnalysis'
 import Recommendations from '../components/Recommendations'
-import { useSelector, type TypedUseSelectorHook } from 'react-redux'
-import type { RootState } from '@/redux/store'
+import { useDispatch, useSelector, type TypedUseSelectorHook } from 'react-redux'
+import type { AppDispatch, RootState } from '@/redux/store'
+import { fetchUserData } from '@/redux/slice/authSlice'
+import { removeLocal } from '@/utils/storage'
 
 interface SkillMatch {
     matched: string[]
@@ -37,6 +39,7 @@ const Dashboard: React.FC = () => {
     const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null)
     const location = useLocation()
     const navigate = useNavigate()
+    const dispatch = useDispatch<AppDispatch>()
 
     const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector
     const state = useTypedSelector((state) => state?.auth)
@@ -54,9 +57,8 @@ const Dashboard: React.FC = () => {
     }, [location.state, navigate])
 
     const handleLogout = () => {
-        localStorage.removeItem('isAuthenticated')
-        localStorage.removeItem('userEmail')
-        localStorage.removeItem('analysisData')
+        removeLocal('access_token')
+        dispatch(fetchUserData())
         navigate('/login')
     }
 

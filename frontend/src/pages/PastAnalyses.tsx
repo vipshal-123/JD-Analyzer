@@ -8,8 +8,10 @@ import LoadingSpinner from '../components/LoadingSpinner'
 import { deleteAnalysis, pastAnalysis } from '@/services/v1/agent/agent.service'
 import { useDispatch, useSelector, type TypedUseSelectorHook } from 'react-redux'
 import { openToast } from '@/redux/slice/toastSlice'
-import type { RootState } from '@/redux/store'
+import type { AppDispatch, RootState } from '@/redux/store'
 import isEmpty from 'is-empty'
+import { fetchUserData } from '@/redux/slice/authSlice'
+import { removeLocal } from '@/utils/storage'
 
 interface Analysis {
     _id: string
@@ -41,7 +43,7 @@ const PastAnalyses: React.FC = () => {
     const [analytics, setAnalytics] = useState<Analytics | null>(null)
 
     const navigate = useNavigate()
-    const dispatch = useDispatch()
+    const dispatch = useDispatch<AppDispatch>()
     const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector
     const state = useTypedSelector((state) => state?.auth)
 
@@ -111,7 +113,8 @@ const PastAnalyses: React.FC = () => {
     }
 
     const handleLogout = () => {
-        localStorage.removeItem('isAuthenticated')
+        removeLocal('access_token')
+        dispatch(fetchUserData())
         navigate('/login')
     }
 

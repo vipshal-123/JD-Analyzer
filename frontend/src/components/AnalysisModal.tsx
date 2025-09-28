@@ -16,10 +16,9 @@ import {
     Briefcase,
 } from 'lucide-react'
 import type { Analysis } from './AnalysisCard'
-import html2canvas from 'html2canvas'
-import jsPDF from 'jspdf'
+import { handleDownloadPDF } from '@/utils/pdfDowmload'
 
-interface AnalysisModalProps {
+export interface AnalysisModalProps {
     analysis: Analysis & {
         parsed_resume?: {
             personal_details?: {
@@ -69,39 +68,6 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose }) => {
         { id: 'recommendations', label: 'Recommendations' },
     ] as const
 
-    const handleDownloadPDF = async () => {
-        if (!contentRef.current) return
-
-        const element = contentRef.current
-
-        const canvas = await html2canvas(element, { scale: 2 })
-        const imgData = canvas.toDataURL('image/png')
-
-        const pdf = new jsPDF('p', 'mm', 'a4')
-
-        const pageWidth = pdf.internal.pageSize.getWidth()
-        const pageHeight = pdf.internal.pageSize.getHeight()
-
-        const imgProps = pdf.getImageProperties(imgData)
-        const imgWidth = pageWidth
-        const imgHeight = (imgProps.height * imgWidth) / imgProps.width
-
-        let heightLeft = imgHeight
-        let position = 0
-
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
-        heightLeft -= pageHeight
-
-        while (heightLeft > 0) {
-            position = heightLeft - imgHeight
-            pdf.addPage()
-            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
-            heightLeft -= pageHeight
-        }
-
-        pdf.save(`analysis_${analysis.job_title.replace(/\s+/g, '_')}.pdf`)
-    }
-
     const handleShare = async () => {
         const shareData = {
             title: `Resume Analysis - ${analysis.job_title}`,
@@ -148,7 +114,7 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose }) => {
                     </div>
                     <div className='flex items-center space-x-2'>
                         <button
-                            onClick={handleDownloadPDF}
+                            onClick={()=>handleDownloadPDF(analysis)}
                             className='flex items-center space-x-2 px-3 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors'
                         >
                             <Download className='w-4 h-4' />

@@ -10,6 +10,8 @@ import { analyseResume } from '@/services/v1/agent/agent.service'
 import { useDispatch } from 'react-redux'
 import { openToast } from '@/redux/slice/toastSlice'
 import { removeLocal } from '@/utils/storage'
+import { fetchUserData } from '@/redux/slice/authSlice'
+import type { AppDispatch } from '@/redux/store'
 
 interface UploadFormValues {
     jobTitle: string
@@ -21,7 +23,7 @@ interface UploadFormValues {
 const UploadPage: React.FC = () => {
     const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false)
     const navigate = useNavigate()
-    const dispatch = useDispatch()
+    const dispatch = useDispatch<AppDispatch>()
 
     const handleSubmit = async (values: UploadFormValues, { setSubmitting }: FormikHelpers<UploadFormValues>) => {
         try {
@@ -87,6 +89,7 @@ const UploadPage: React.FC = () => {
 
     const handleLogout = () => {
         removeLocal('access_token')
+        dispatch(fetchUserData())
         navigate('/login')
     }
 
