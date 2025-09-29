@@ -65,7 +65,7 @@ SMTP_MAIL=
 4. **Start development server**
 ```bash
 npm run dev #local server
-docker compose -f docker-compose.dev.yml up -- build #docker server
+docker compose -f docker-compose.dev.yml up --build #docker server
 
 - If you are using local docker then please replace localhost to mongo in MONGO_URI 
 ```
