@@ -62,7 +62,7 @@ GEMINI_API_KEY=
 ### Development Mode
 ```bash
 poetry run server #local server
-docker compose -f docker-compose.dev.yml up -- build #doker server
-- If you are using local doker then please replace localhost to mongo in MONGO_URI 
+docker compose -f docker-compose.dev.yml up --build #docker server
+- If you are using local docker then please replace localhost to mongo in MONGO_URI 
 ```
 
