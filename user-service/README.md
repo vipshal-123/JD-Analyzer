@@ -65,13 +65,13 @@ SMTP_MAIL=
 4. **Start development server**
 ```bash
 npm run dev #local server
-docker compose -f docker-compose.dev.yml up -- build #doker server
+docker compose -f docker-compose.dev.yml up -- build #docker server
 
-- If you are using local doker then please replace localhost to mongo in MONGO_URI 
+- If you are using local docker then please replace localhost to mongo in MONGO_URI 
 ```
 
 
-5. **ADD the email template to your database**
+5. **Add the email template to your database**
 ```bash
 {
   "identifier": "verification_mail",
