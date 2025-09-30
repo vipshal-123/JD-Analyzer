@@ -28,6 +28,20 @@ export const signupVerifyOtp = async (data: { otp: string; token: string | null 
     }
 }
 
+export const resendOtp = async (data: { token: string | null }) => {
+    try {
+        const response = await axios({
+            url: '/auth/user/resend-otp',
+            method: 'POST',
+            data,
+        })
+
+        return handleResponse(response, 'success')
+    } catch (error) {
+        return handleResponse(error, 'error')
+    }
+}
+
 export const createPassword = async (data: { password: string }) => {
     try {
         const response = await axios({

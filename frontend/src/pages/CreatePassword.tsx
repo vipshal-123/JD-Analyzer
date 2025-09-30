@@ -8,6 +8,8 @@ import { createPassword } from '@/services/auth/user/user.service'
 import { useDispatch } from 'react-redux'
 import { openToast } from '@/redux/slice/toastSlice'
 import { removeLocal, setLocal } from '@/utils/storage'
+import { fetchUserData } from '@/redux/slice/authSlice'
+import type { AppDispatch } from '@/redux/store'
 
 interface CreatePasswordFormValues {
     password: string
@@ -18,13 +20,14 @@ const CreatePassword: React.FC = () => {
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const navigate = useNavigate()
-    const dispatch = useDispatch()
+    const dispatch = useDispatch<AppDispatch>()
 
     const handleSumbit = async (values: CreatePasswordFormValues, { setSubmitting }: FormikHelpers<CreatePasswordFormValues>) => {
         try {
             const response = await createPassword({ password: values.password })
 
             if (response.success) {
+                dispatch(fetchUserData())
                 navigate('/upload')
                 removeLocal('token')
                 setLocal('access_token', response.accessToken)

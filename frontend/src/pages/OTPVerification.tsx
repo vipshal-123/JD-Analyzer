@@ -5,7 +5,7 @@ import type { FormikHelpers } from 'formik'
 import { useNavigate } from 'react-router-dom'
 import { Shield, AlertCircle } from 'lucide-react'
 import { otpSchema } from '../utils/validationSchemas'
-import { signupVerifyOtp } from '@/services/auth/user/user.service'
+import { resendOtp, signupVerifyOtp } from '@/services/auth/user/user.service'
 import { getLocal } from '@/utils/storage'
 import { useDispatch } from 'react-redux'
 import { openToast } from '@/redux/slice/toastSlice'
@@ -74,12 +74,17 @@ const OTPVerification: React.FC = () => {
 
     const handleResendOTP = async () => {
         try {
-            // Simulate resend API call
-            await new Promise((resolve) => setTimeout(resolve, 500))
-            alert('OTP resent successfully!')
+            const localToken = getLocal('token')
+            const response = await resendOtp({ token: localToken })
+
+            if (response.success) {
+                dispatch(openToast({ message: response.message, type: 'success' }))
+            } else {
+                dispatch(openToast({ message: response.message, type: 'error' }))
+            }
         } catch (error) {
             console.error('error: ', error)
-            alert('Failed to resend OTP. Please try again.')
+            dispatch(openToast({ message: 'Something went wrong', type: 'error' }))
         }
     }
 
